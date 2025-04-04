@@ -20,8 +20,7 @@ public record Go(Go.ICommand[] Commands) : ICommand {
     public class Parser : UCI.ICommandParser {
         private IReadOnlyDictionary<string, Go.ICommandParser> commands;
 
-        public Parser() {
-            this.commands = new Dictionary<string, Go.ICommandParser>() {
+        public IReadOnlyDictionary<string, Go.ICommandParser> DefaultCommands = new Dictionary<string, Go.ICommandParser>() {
                 { SearchMoves.arg0, new SearchMoves.Parser() },
                 { Ponder.arg0, new Ponder.Parser() },
                 { "wtime", new Time.Parser() },
@@ -34,7 +33,10 @@ public record Go(Go.ICommand[] Commands) : ICommand {
                 { Mate.arg0, new Mate.Parser() },
                 { MoveTime.arg0, new MoveTime.Parser() },
                 { Infinite.arg0, new Infinite.Parser() },
-            };
+        };
+
+        public Parser() {
+            this.commands = DefaultCommands;
         }
 
         public Parser(IReadOnlyDictionary<string, Go.ICommandParser> commands) {
@@ -48,7 +50,7 @@ public record Go(Go.ICommand[] Commands) : ICommand {
             int unknown = 0;
 
             for (int i = 1; i < args.Length; i++) {
-                if (this.commands.TryGetValue(args[i], out Go.ICommandParser parser)) {
+                if (this.commands.TryGetValue(args[i], out Go.ICommandParser? parser)) {
                     if (unknown != 0) {
                         commands.Add(new Unknown(args[(i - unknown)..i]));
                         unknown = 0;

@@ -4,11 +4,15 @@ using System.IO;
 
 namespace Fraction.UCI;
 
+/// <summary>
+/// Class <c>Engine</c> provides basic UCI facilities, including UCI command
+/// parsing and sending commands.
+/// </summary>
 public abstract class Engine {
     private TextReader @in;
     private TextWriter @out;
 
-    protected IReadOnlyDictionary<string, ICommandParser> Commands { get; init; } = new Dictionary<string, ICommandParser>() {
+    protected static IReadOnlyDictionary<string, ICommandParser> DefaultCommands = new Dictionary<string, ICommandParser>() {
         { Uci.arg0, new Uci.Parser() },
         { Debug.arg0, new Debug.Parser() },
         { IsReady.arg0, new IsReady.Parser() },
@@ -21,6 +25,7 @@ public abstract class Engine {
         { Quit.arg0, new Quit.Parser() },
     };
 
+    protected IReadOnlyDictionary<string, ICommandParser> Commands { get; init; } = DefaultCommands;
     protected LogLevel MinLogLevel { get; set; } = LogLevel.Info;
 
     protected Engine() : this(Console.In, Console.Out) {}
@@ -39,7 +44,7 @@ public abstract class Engine {
         for (string? line = this.@in.ReadLine(); line is not null; line = this.@in.ReadLine()) {
             string[] args = line.Trim().Split();
 
-            if (this.Commands.TryGetValue(args[0], out ICommandParser parser)) {
+            if (this.Commands.TryGetValue(args[0], out ICommandParser? parser)) {
                 this.Handle(parser.Parse(this, args));
             } else this.Handle(new Unknown(args));
         }
