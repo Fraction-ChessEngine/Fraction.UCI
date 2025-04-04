@@ -44,7 +44,7 @@ public abstract class Engine {
         for (string? line = this.@in.ReadLine(); line is not null; line = this.@in.ReadLine()) {
             string[] args = line.Trim().Split();
 
-            if (this.Commands.TryGetValue(args[0], out ICommandParser parser)) {
+            if (this.Commands.TryGetValue(args[0], out ICommandParser? parser)) {
                 this.Handle(parser.Parse(this, args));
             } else this.Handle(new Unknown(args));
         }

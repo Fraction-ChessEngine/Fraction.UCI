@@ -48,7 +48,7 @@ public record Go(Go.ICommand[] Commands) : ICommand {
             int unknown = 0;
 
             for (int i = 1; i < args.Length; i++) {
-                if (this.commands.TryGetValue(args[i], out Go.ICommandParser parser)) {
+                if (this.commands.TryGetValue(args[i], out Go.ICommandParser? parser)) {
                     if (unknown != 0) {
                         commands.Add(new Unknown(args[(i - unknown)..i]));
                         unknown = 0;
